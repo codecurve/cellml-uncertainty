@@ -96,8 +96,8 @@
       <lambda>
         <bvar>x</bvar>
         <apply><times/>
-          <apply><div/><cn units="dimensionless">1</cn>
-            <apply><sqrt/>
+          <apply><divide/><cn units="dimensionless">1</cn>
+            <apply><root/>
               <apply><times/>
                 <cn units="dimensionless">2</cn>
                 <pi/>
