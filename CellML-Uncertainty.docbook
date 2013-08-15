@@ -2,8 +2,10 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "docbookx.dtd">
 <article lang="en">
 <articleinfo>
-  <title>Representing uncertainty in CellML : Unofficial working draft</title>
+  <title>A proposed mechanism for representing uncertainty in mathematical models in CellML</title>
 </articleinfo>
+<abstract>
+</abstract>
 <section>
   <title>Application to CellML</title>
   <para>
@@ -37,9 +39,9 @@
   </para>
 </section>
 <section>
-  <title>The uncertParWithDist operator</title>
+  <title>The uncertainParameterWithDistribution operator</title>
   <para>
-    The following MathML csymbol definition URL is declared to exist: <uri>http://www.cellml.org/uncert1#uncertParWithDist</uri>. It may be used as the operator child of a MathML apply element that is the child of a MathML math element, that is in turn the child of a CellML component element.
+    The following MathML csymbol definition URL is declared to exist: <uri>http://www.cellml.org/uncertainty-1#uncertainParameterWithDistribution</uri>. It may be used as the operator child of a MathML apply element that is the child of a MathML math element, that is in turn the child of a CellML component element.
   </para>
   <para>
     The operator takes two parameters. The first parameter shall be a MathML &lt;ci&gt; element, naming the variable corresponding to the uncertain parameter (or alternatively, may be a vector of such &lt;ci&gt; elements). The second parameter shall describe the distribution for that parameter, using one of the mechanisms discussed below.
@@ -52,7 +54,7 @@
 <section>
   <title>The distFromDensity operator</title>
   <para>
-    The following MathML csymbol definition URL is declared to exist: <uri>http://www.cellml.org/uncert1#distFromDensity</uri>.
+    The following MathML csymbol definition URL is declared to exist: <uri>http://www.cellml.org/uncertainty-1#distributionFromDensity</uri>.
   </para>
   <para>
     The operator takes one parameter, which shall be a function of one parameter.
@@ -65,7 +67,7 @@
 <section>
   <title>The distFromRealisations operator</title>
   <para>
-    The following MathML csymbol definition URL is declared to exist: "http://www.cellml.org/uncert1#distFromRealisations".
+    The following MathML csymbol definition URL is declared to exist: "http://www.cellml.org/uncertainty-1#distributionFromRealisations".
   </para>
   <para>
     The operator takes one parameter, which shall be a vector.
@@ -77,6 +79,10 @@
 
 <section>
   <title>Example 1</title>
+  <para>
+    This simple example has an uncertain variable, myUncertainVar, which is drawn from a distribution specified using the probability density function for the normal distribution, around mean parameter muvMean with variance parameter muvVariance. The rendered form is
+<math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>myUncertainVar</mi><mo>=</mo><mi>distFromDensity</mi><mo stretchy="true">(</mo><mi>x</mi><mo>:</mo><mfrac><mn>1</mn><msqrt><mrow><mn>2</mn><mi>&pi;</mi><mi>muvVariance</mi></mrow></msqrt></mfrac><msup><mi>e</mi> <mfrac><mrow><mo lspace="verythinmathspace" rspace="0em">&minus;</mo><mo stretchy="false">(</mo><mi>x</mi><mo>&minus;</mo><mi>muvMean</mi><msup><mo stretchy="false">)</mo> <mn>2</mn></msup></mrow><mrow><mn>2</mn><mi>muvVariance</mi></mrow></mfrac></msup><mo stretchy="true">)</mo></math>
+  </para>
   <screen><![CDATA[
 <model xmlns="http://www.cellml.org/cellml/1.1#">
   <component name="myComponent">
@@ -84,17 +90,17 @@
     <variable name="muvVariance" value="1" units="mmol2">
     <variable name="muvMean" value="100" units="mmol">
     <!-- used as a bound variable only -->
-    <variable name="x" units="dimensionless" />
+    <variable name="x" units="mmol" />
 <math xmlns="http://www.w3.org/1998/Math/MathML">
   <apply>
     <csymbol definitionURL=
-       "http://www.cellml.org/uncert1#uncertParWithDist"/>
+       "http://www.cellml.org/uncertainty-1#uncertainParameterWithDistribution"/>
     <ci>myUncertainVar</ci>
     <apply>
       <csymbol definitionURL=
-        "http://www.cellml.org/uncert1#distFromDensity"/>
+        "http://www.cellml.org/uncertainty-1#distributionFromDensity"/>
       <lambda>
-        <bvar>x</bvar>
+        <bvar><ci>x</ci></bvar>
         <apply><times/>
           <apply><divide/><cn units="dimensionless">1</cn>
             <apply><root/>
@@ -139,45 +145,71 @@
 
 <section>
   <title>Example 2</title>
+  <para>
+    This example describes two correlated, uncertain variables for which the probability density function is not given; instead, a series of samples (realisations) from the distribution are provided. In a real model, it would be desirable to provide more realisations than are provided here.
+  </para>
   <screen><![CDATA[
-<model xmlns="http://www.cellml.org/cellml/1.1#">
+<model xmlns="http://www.cellml.org/cellml/1.1#"
+       xmlns:cellml="http://www.cellml.org/cellml/1.1#">
   <component name="myComponent">
     <variable name="myUncertainVar1" units="mmol" />
     <variable name="myUncertainVar2" units="mmol" />
 <math xmlns="http://www.w3.org/1998/Math/MathML">
   <apply>
     <csymbol definitionURL=
-      "http://www.cellml.org/uncert1#uncertParWithDist"/>
+      "http://www.cellml.org/uncertainty-1#uncertainParameterWithDistribution"/>
     <vector>
       <ci>myUncertainVar1</ci>
       <ci>myUncertainVar2</ci>
     </vector>
     <apply>
       <csymbol definitionURL=
-        "http://www.cellml.org/uncert1#distFromRealisations"/>
+        "http://www.cellml.org/uncertainty-1#distributionFromRealisations"/>
       <vector>
-<vector><cn>95.955908</cn><cn>194.757993</cn></vector>
-<vector><cn>105.603820</cn><cn>203.808066</cn></vector>
-<vector><cn>100.718858</cn><cn>206.706151</cn></vector>
-<vector><cn>106.242517</cn><cn>207.960578</cn></vector>
-<vector><cn>93.885181</cn><cn>202.142459</cn></vector>
-<vector><cn>96.684373</cn><cn>208.131092</cn></vector>
-<vector><cn>111.892309</cn><cn>209.065506</cn></vector>
-<vector><cn>97.934903</cn><cn>196.563091</cn></vector>
-<vector><cn>93.610101</cn><cn>184.053900</cn></vector>
-<vector><cn>100.017601</cn><cn>203.956891</cn></vector>
-<vector><cn>104.661797</cn><cn>212.659437</cn></vector>
-<vector><cn>94.717419</cn><cn>212.040720</cn></vector>
-<vector><cn>106.113691</cn><cn>215.722901</cn></vector>
-<vector><cn>102.165401</cn><cn>200.936588</cn></vector>
-<vector><cn>101.105097</cn><cn>215.538148</cn></vector>
-<vector><cn>86.452295</cn><cn>174.432827</cn></vector>
-<vector><cn>105.852376</cn><cn>219.470806</cn></vector>
-<vector><cn>97.055510</cn><cn>202.784736</cn></vector>
-<vector><cn>87.275791</cn><cn>178.905540</cn></vector>
-<vector><cn>104.656642</cn><cn>201.548261</cn></vector>
-<vector><cn>90.708908</cn><cn>179.354500</cn></vector>
-<vector><cn>106.636560</cn><cn>206.118002</cn></vector>
+<vector><cn cellml:units="mmol">95.955908</cn>
+  <cn cellml:units="mmol">194.757993</cn></vector>
+<vector><cn cellml:units="mmol">105.603820</cn>
+  <cn cellml:units="mmol">203.808066</cn></vector>
+<vector><cn cellml:units="mmol">100.718858</cn>
+  <cn cellml:units="mmol">206.706151</cn></vector>
+<vector><cn cellml:units="mmol">106.242517</cn>
+  <cn cellml:units="mmol">207.960578</cn></vector>
+<vector><cn cellml:units="mmol">93.885181</cn>
+  <cn cellml:units="mmol">202.142459</cn></vector>
+<vector><cn cellml:units="mmol">96.684373</cn>
+  <cn cellml:units="mmol">208.131092</cn></vector>
+<vector><cn cellml:units="mmol">111.892309</cn>
+  <cn cellml:units="mmol">209.065506</cn></vector>
+<vector><cn cellml:units="mmol">97.934903</cn>
+  <cn cellml:units="mmol">196.563091</cn></vector>
+<vector><cn cellml:units="mmol">93.610101</cn>
+  <cn cellml:units="mmol">184.053900</cn></vector>
+<vector><cn cellml:units="mmol">100.017601</cn>
+  <cn cellml:units="mmol">203.956891</cn></vector>
+<vector><cn cellml:units="mmol">104.661797</cn>
+  <cn cellml:units="mmol">212.659437</cn></vector>
+<vector><cn cellml:units="mmol">94.717419</cn>
+  <cn cellml:units="mmol">212.040720</cn></vector>
+<vector><cn cellml:units="mmol">106.113691</cn>
+  <cn cellml:units="mmol">215.722901</cn></vector>
+<vector><cn cellml:units="mmol">102.165401</cn>
+  <cn cellml:units="mmol">200.936588</cn></vector>
+<vector><cn cellml:units="mmol">101.105097</cn>
+  <cn cellml:units="mmol">215.538148</cn></vector>
+<vector><cn cellml:units="mmol">86.452295</cn>
+  <cn cellml:units="mmol">174.432827</cn></vector>
+<vector><cn cellml:units="mmol">105.852376</cn>
+  <cn cellml:units="mmol">219.470806</cn></vector>
+<vector><cn cellml:units="mmol">97.055510</cn>
+  <cn cellml:units="mmol">202.784736</cn></vector>
+<vector><cn cellml:units="mmol">87.275791</cn>
+  <cn cellml:units="mmol">178.905540</cn></vector>
+<vector><cn cellml:units="mmol">104.656642</cn>
+  <cn cellml:units="mmol">201.548261</cn></vector>
+<vector><cn cellml:units="mmol">90.708908</cn>
+  <cn cellml:units="mmol">179.354500</cn></vector>
+<vector><cn cellml:units="mmol">106.636560</cn>
+  <cn cellml:units="mmol">206.118002</cn></vector>
 <!-- Only a small number of realisations given for brevity;
      in a real model, far more would probably be given. -->
       </vector>
